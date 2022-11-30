@@ -1,0 +1,1 @@
+API_ENDPOINT_EVENT = "https://neo-bolide.ndc.nasa.gov/service/event/"
