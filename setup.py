@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='bolides_bounding_box',
-    version='0.0.0',
+    version='0.0.1',
     author='yajucb',
     author_email='yajucb@berkely.edu',
     packages=find_packages(),
@@ -12,14 +12,12 @@ setup(
     long_description=open('README.md').read(),
     install_requires=[
       "requests",
-      "pyproj",
-      "cartopy",
-      "pyshp",
-      "shapely",
-      "boto3",
-      "pandas",
-      "matplotlib",
       "numpy",
+      "pyproj",
+      "shapely",
+      "matplotlib",
+      "cartopy",
+      "boto3",
       "netCDF4",
     ]
 )
