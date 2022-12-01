@@ -11,8 +11,6 @@ ImageType = Enum("ImageType", ["CSM", "CMI"])
 # Fill in with your access id and key if AWS CLI is not set up
 aws_access_key_id = None
 aws_secret_access_key = None
-aws_access_key_id = "AKIAZIYFSPESW55ZPI65"
-aws_secret_access_key = "3//0qr5JJhUcFFj0K5ixkqtZoQjVHiHQRYCL8QaO"
 client = boto3.client('s3', 
 					  aws_access_key_id=aws_access_key_id,
 					  aws_secret_access_key=aws_secret_access_key)
