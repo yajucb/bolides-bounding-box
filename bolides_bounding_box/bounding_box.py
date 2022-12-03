@@ -1,16 +1,19 @@
-from enum import Enum						# For categorizing support image types
+import os										# For accessing AWS access environment variables
+from enum import Enum							# For categorizing support image types
 
-import boto3								# AWS S3 access
+import boto3									# AWS S3 access
 
-from .utils import *
+from .utils import get_s3_url_for_timestamp, \
+create_resuable_reference_files, \
+save_and_plot_image								# Import utility functions
 
 
 # Define image types
 ImageType = Enum("ImageType", ["CSM", "CMI"])
 
 # Fill in with your access id and key if AWS CLI is not set up
-aws_access_key_id = None
-aws_secret_access_key = None
+aws_access_key_id = os.environ.get("AWS_ACCESS_KEY_ID")
+aws_secret_access_key = os.environ.get("AWS_SECRET_ACCESS_KEY")
 client = boto3.client('s3', 
 					  aws_access_key_id=aws_access_key_id,
 					  aws_secret_access_key=aws_secret_access_key)
