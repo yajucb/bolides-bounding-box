@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='bolides_bounding_box',
-    version='0.0.2',
+    version='0.0.3',
     author='yajucb',
     author_email='yajucb@berkely.edu',
     packages=find_packages(),
