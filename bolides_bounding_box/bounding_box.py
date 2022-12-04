@@ -3,9 +3,9 @@ from enum import Enum							# For categorizing support image types
 
 import boto3									# AWS S3 access
 
-from .utils import get_s3_url_for_timestamp, \
+from .utils import get_image_file_for_timestamp_from_s3, \
 create_resuable_reference_files, \
-save_and_plot_image								# Import utility functions
+save_and_plot_bb_image								# Import utility functions
 
 
 # Define image types
@@ -19,39 +19,43 @@ client = boto3.client('s3',
 					  aws_secret_access_key=aws_secret_access_key)
 
 
-def get_cloudiness(goes, lat, lon, timestamp, bsize_degrees=2, ref_grid_resolution_km=8):
+def get_cloudiness(goes, lat, lon, timestamp, 
+	bsize_degrees=2, ref_grid_resolution_km=8, show_plot=True, outfile=None):
 	"""
 	Returns a cloudiness value between 0 and 1 as the average of the CSM output.
 	:param goes str: GOES satellite number
-	:param lat float: Bolide latitude coordinate
-	:param lon float: Bolide longitude coordinate
-	:param timestamp str: Bolide datetime timestamp
-	:param bsize_degrees int (optional): Bounding box size by degrees
-	:param ref_grid_resolution_km int (optional): Reference grid resolution in kilometers
-	:return float: Cloudiness value
+	:param lat float: bolide latitude coordinate
+	:param lon float: bolide longitude coordinate
+	:param timestamp str: bolide datetime timestamp
+	:param bsize_degree int (optional): bounding box size in degrees, default 2x2
+	:param ref_grid_resolution_km int (optional): reference grid resolution in kilometers, default 8
+	:param show_plot bool (optional): bool for showing plot with visual elements, default True
+	:param outfile str (outfile): outfile where the bounding box image will be saved, default None which uses the eventid
+	:return float: cloudiness value
 	"""
 
-	data = get_image_from_s3(goes, lat, lon, timestamp, 
+	data = get_bb_image(goes, lat, lon, timestamp, 
 							 image_type=ImageType.CSM, 
 							 bsize_degrees=bsize_degrees, 
 							 ref_grid_resolution_km=ref_grid_resolution_km,
-							 eyes=False)
+							 show_plot=show_plot,
+							 outfile=outfile)
 	return data.mean()
 
-def get_image_from_s3(goes, lat, lon, timestamp, 
-		 image_type=ImageType.CSM, bsize_degrees=2, ref_grid_resolution_km=8, eyes=True, outfile=None):
+def get_bb_image(goes, lat, lon, timestamp, 
+		 image_type=ImageType.CSM, bsize_degrees=2, ref_grid_resolution_km=8, show_plot=True, outfile=None):
 	"""
 	Returns a cloudiness value between 0 and 1 as the average of the CSM output.
 	:param goes str: GOES satellite number
-	:param lat float: Bolide latitude coordinate
-	:param lon float: Bolide longitude coordinate
-	:param timestamp str: Bolide datetime timestamp
-	:param image_type ImageType (optional): Imagery type, either CSM or CMI
-	:param bsize_degrees int (optional): Bounding box size by degrees
-	:param ref_grid_resolution_km int (optional): Reference grid resolution in kilometers
-	:param eyes bool (optional): Bool determining visualization parameters for viewing
-	:param outfile str/None (optional): Image outfile name, default None
-	:return float: Cloudiness value
+	:param lat float: bolide latitude coordinate
+	:param lon float: bolide longitude coordinate
+	:param timestamp str: bolide datetime timestamp
+	:param image_type ImageType (optional): imagery type, either CSM or CMI
+	:param bsize_degree int (optional): bounding box size in degrees, default 2x2
+	:param ref_grid_resolution_km int (optional): reference grid resolution in kilometers, default 8
+	:param show_plot bool (optional): bool for showing plot with visual elements, default True
+	:param outfile str (outfile): outfile where the bounding box image will be saved, default None which uses the eventid
+	:return float: cloudiness value
 	"""
 
 	# Define bucket for GOES satellite and prefix base for imagery
@@ -64,7 +68,7 @@ def get_image_from_s3(goes, lat, lon, timestamp,
 		data_key = "BCM"
 	elif image_type == ImageType.CMI:
 		imagery = "CMIPF"
-		band_suffix = "C02" # red band
+		band_suffix = "C02" # red band, can be updated to check all 16
 		data_key = "CMI"
 	
 	# Define prefix base from imagery
@@ -76,8 +80,8 @@ def get_image_from_s3(goes, lat, lon, timestamp,
 	elif ref_grid_resolution_km % 2 != 0:
 		raise Exception("Only resolutions that are a multiple of 2 km are supported.")
 
-	# Get S3 image url
-	url = get_s3_url_for_timestamp(client, bucket, timestamp, goes, imagery, band_suffix, prefix_base)
+	# Get image file from S3
+	image_file = get_image_file_for_timestamp_from_s3(client, bucket, timestamp, goes, imagery, band_suffix, prefix_base)
 
 	# Create reusable reference files for converting to lat lon
 	lats_file = "g{}_lats_{}km.txt".format(goes, ref_grid_resolution_km)
@@ -85,6 +89,6 @@ def get_image_from_s3(goes, lat, lon, timestamp,
 	if not os.path.exists(lats_file) or not os.path.exists(lons_file):
 		create_resuable_reference_files(goes, ref_grid_resolution_km, lats_file, lons_file)
 	
-	return save_and_plot_image(goes, image_type, data_key, url, lat, lon, lats_file, lons_file, 
-						bsize_degrees, ref_grid_resolution_km, eyes, outfile)
+	return save_and_plot_bb_image(goes, image_type, data_key, image_file, lat, lon, lats_file, lons_file, 
+						bsize_degrees, ref_grid_resolution_km, show_plot, outfile)
 
