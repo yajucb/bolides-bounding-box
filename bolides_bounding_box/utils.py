@@ -7,7 +7,7 @@ from json import loads, dumps				# Loading and storing intermediate results
 import requests								# Read from S3
 import numpy as np							# Scientific computing with Python
 import matplotlib.pyplot as plt				# Plotting library
-import cartopy, cartopy.crs as ccrs			# Plot maps
+import cartopy.crs as ccrs					# Plot maps
 from netCDF4 import Dataset					# Read / Write NetCDF4 files
 from pyproj import Proj						# Cartographic projections and coordinate transformations library
 
@@ -142,9 +142,8 @@ def save_and_plot_bb_image(goes, image_type, data_key, image_file, lat, lon, lat
 	if show_plot:
 		# Some visual features seem to crash on Mac
 		if platform.system() != 'Darwin':
-			# Add coastlines, borders and gridlines
+			# Add coastlines and gridlines
 		    ax.coastlines(resolution="10m", color="white", linewidth=0.8)
-		    ax.add_feature(cartopy.feature.BORDERS, edgecolor="gray", linewidth=1.0)
 		    ax.gridlines(color="white", alpha=0.5, linestyle="--", linewidth=0.5)
 		
 		# Insert Label
