@@ -2,7 +2,7 @@ import requests
 
 from . import API_ENDPOINT_EVENT
 
-from bolides_bounding_box.bounding_box import get_cloudiness, get_bb_image
+from bolides_bounding_box.bounding_box import get_cloudiness, get_bb_image, ImageType
 
 class Bolide():
 	"""Represents a bright fireball reported at https://neo-bolide.ndc.nasa.gov
@@ -43,7 +43,8 @@ class Bolide():
 	def cloudiness(self, bsize_degrees=2, ref_grid_resolution_km=8, show_plot=True, outfile=None):
 		"""
 		Returns average cloud cover around the bolide as determined by the binary Clear Sky Mask (CSM) algorithm 
-		# https://www.goes-r.gov/products/baseline-clear-sky-mask.html
+		https://www.goes-r.gov/products/baseline-clear-sky-mask.html
+		NOTE: if the event was detected by both GOES 16 and 17, both images will be displayed and the cloudiness will be the average
 		:param bsize_degree int (optional): bounding box size in degrees, default 2x2
 		:param ref_grid_resolution_km int (optional): reference grid resolution in kilometers, default 8
 		:param show_plot bool (optional): bool for showing plot with visual elements, default True
@@ -53,13 +54,15 @@ class Bolide():
 		cloudiness = []
 		for glm in self.detectedBy:
 			goes = glm.split("-")[-1]
-			cloudiness.append(get_cloudiness(goes, self.latitude, self.longitude, self.datetime, 
+			cloudiness.append(get_cloudiness(goes, self.eventid, self.latitude, self.longitude, self.datetime, 
 				bsize_degrees=bsize_degrees, ref_grid_resolution_km=ref_grid_resolution_km, show_plot=show_plot, outfile=outfile))
 		return sum(cloudiness)/len(cloudiness)
 	
-	def get_bounding_box(self, bsize_degrees=2, ref_grid_resolution_km=8, show_plot=True, outfile=None):
+	def get_bounding_box(self, image_type=ImageType.CSM, bsize_degrees=2, ref_grid_resolution_km=8, show_plot=True, outfile=None):
 		"""
 		Get a bounding box image of the region of interest around the bolide.
+		NOTE: if the event was detected by both GOES 16 and 17, both images will be displayed
+		:param image_type ImageType (optional): imagery type, either CSM or CMI
 		:param bsize_degree int (optional): bounding box size in degrees, default 2x2
 		:param ref_grid_resolution_km int (optional): reference grid resolution in kilometers, default 8
 		:param show_plot bool (optional): bool for showing plot with visual elements, default True
@@ -68,5 +71,6 @@ class Bolide():
 		"""
 		for glm in self.detectedBy:
 			goes = glm.split("-")[-1]
-			get_bb_image(goes, self.latitude, self.longitude, self.datetime, 
-				bsize_degrees=bsize_degrees, ref_grid_resolution_km=ref_grid_resolution_km, show_plot=show_plot, outfile=outfile)
+			get_bb_image(goes, self.eventid, self.latitude, self.longitude, self.datetime, 
+				image_type=image_type, bsize_degrees=bsize_degrees, ref_grid_resolution_km=ref_grid_resolution_km, 
+				show_plot=show_plot, outfile=outfile)

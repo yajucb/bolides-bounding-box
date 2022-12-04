@@ -1,11 +1,11 @@
-import os										# For accessing AWS access environment variables
-from enum import Enum							# For categorizing support image types
+import os													# For accessing AWS access environment variables
+from enum import Enum										# For categorizing support image types
 
-import boto3									# AWS S3 access
+import boto3												# AWS S3 access
 
 from .utils import get_image_file_for_timestamp_from_s3, \
-create_resuable_reference_files, \
-save_and_plot_bb_image								# Import utility functions
+create_resuable_reference_files, get_default_outfile, \
+save_and_plot_bb_image										# Import utility functions
 
 
 # Define image types
@@ -19,11 +19,12 @@ client = boto3.client('s3',
 					  aws_secret_access_key=aws_secret_access_key)
 
 
-def get_cloudiness(goes, lat, lon, timestamp, 
+def get_cloudiness(goes, event_id, lat, lon, timestamp, 
 	bsize_degrees=2, ref_grid_resolution_km=8, show_plot=True, outfile=None):
 	"""
 	Returns a cloudiness value between 0 and 1 as the average of the CSM output.
 	:param goes str: GOES satellite number
+	:param event_id str: bolide event id
 	:param lat float: bolide latitude coordinate
 	:param lon float: bolide longitude coordinate
 	:param timestamp str: bolide datetime timestamp
@@ -34,7 +35,7 @@ def get_cloudiness(goes, lat, lon, timestamp,
 	:return float: cloudiness value
 	"""
 
-	data = get_bb_image(goes, lat, lon, timestamp, 
+	data = get_bb_image(goes, event_id, lat, lon, timestamp, 
 							 image_type=ImageType.CSM, 
 							 bsize_degrees=bsize_degrees, 
 							 ref_grid_resolution_km=ref_grid_resolution_km,
@@ -42,11 +43,12 @@ def get_cloudiness(goes, lat, lon, timestamp,
 							 outfile=outfile)
 	return data.mean()
 
-def get_bb_image(goes, lat, lon, timestamp, 
+def get_bb_image(goes, event_id, lat, lon, timestamp, 
 		 image_type=ImageType.CSM, bsize_degrees=2, ref_grid_resolution_km=8, show_plot=True, outfile=None):
 	"""
 	Returns a cloudiness value between 0 and 1 as the average of the CSM output.
 	:param goes str: GOES satellite number
+	:param event_id str: bolide event id
 	:param lat float: bolide latitude coordinate
 	:param lon float: bolide longitude coordinate
 	:param timestamp str: bolide datetime timestamp
@@ -88,6 +90,9 @@ def get_bb_image(goes, lat, lon, timestamp,
 	lons_file = "g{}_lons_{}km.txt".format(goes, ref_grid_resolution_km)
 	if not os.path.exists(lats_file) or not os.path.exists(lons_file):
 		create_resuable_reference_files(goes, ref_grid_resolution_km, lats_file, lons_file)
+
+	if outfile is None:
+		outfile = get_default_outfile(goes, event_id, bsize_degrees, ref_grid_resolution_km)
 	
 	return save_and_plot_bb_image(goes, image_type, data_key, image_file, lat, lon, lats_file, lons_file, 
 						bsize_degrees, ref_grid_resolution_km, show_plot, outfile)

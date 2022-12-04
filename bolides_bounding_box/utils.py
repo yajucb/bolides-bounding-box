@@ -7,7 +7,7 @@ from json import loads, dumps				# Loading and storing intermediate results
 import requests								# Read from S3
 import numpy as np							# Scientific computing with Python
 import matplotlib.pyplot as plt				# Plotting library
-import cartopy.crs as ccrs					# Plot maps
+import cartopy, cartopy.crs as ccrs			# Plot maps
 from netCDF4 import Dataset					# Read / Write NetCDF4 files
 from pyproj import Proj						# Cartographic projections and coordinate transformations library
 
@@ -93,6 +93,9 @@ def create_resuable_reference_files(goes, ref_grid_resolution_km, lats_file, lon
 	np.savetxt(lats_file, lats, fmt="%.2f")
 	np.savetxt(lons_file, lons, fmt="%.2f")
 
+def get_default_outfile(goes, event_id, bsize_degrees, ref_grid_resolution_km):
+	return "GOES-{}_{}_{}x{}_{}km.png".format(goes, event_id, bsize_degrees, bsize_degrees, ref_grid_resolution_km)
+
 def save_and_plot_bb_image(goes, image_type, data_key, image_file, lat, lon, lats_file, lons_file, 
 						bsize_degrees, ref_grid_resolution_km, show_plot, outfile):
 
@@ -170,9 +173,7 @@ def save_and_plot_bb_image(goes, image_type, data_key, image_file, lat, lon, lat
 	img = ax.imshow(data, vmin=0.0, vmax=0.7, extent=img_extent, origin="upper", cmap="gray")
 
 	# Save the image
-	if outfile is None:
-		outfile = "{}__{}_{}.png".format(image[:-3], lat, lon)
-		plt.savefig(outfile)
+	plt.savefig(outfile)
 
 	if show_plot:
 		# Show the image
