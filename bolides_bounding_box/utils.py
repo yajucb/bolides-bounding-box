@@ -92,8 +92,8 @@ def create_resuable_reference_files(goes, ref_grid_resolution_km, lats_file, lon
 	np.savetxt(lats_file, lats, fmt="%.2f")
 	np.savetxt(lons_file, lons, fmt="%.2f")
 
-def get_default_outfile(goes, event_id, bsize_degrees, ref_grid_resolution_km):
-	return "GOES-{}_{}_{}x{}_{}km.png".format(goes, event_id, bsize_degrees, bsize_degrees, ref_grid_resolution_km)
+def get_default_outfile(goes, event_id, image_type, bsize_degrees, ref_grid_resolution_km):
+	return "GOES-{}_{}_{}_{}x{}_{}km.png".format(goes, event_id, image_type, bsize_degrees, bsize_degrees, ref_grid_resolution_km)
 
 def save_and_plot_bb_image(goes, image_type, data_key, image_file, lat, lon, lats_file, lons_file, 
 						bsize_degrees, ref_grid_resolution_km, show_plot, outfile):

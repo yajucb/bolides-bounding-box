@@ -92,7 +92,7 @@ def get_bb_image(goes, event_id, lat, lon, timestamp,
 		create_resuable_reference_files(goes, ref_grid_resolution_km, lats_file, lons_file)
 
 	if outfile is None:
-		outfile = get_default_outfile(goes, event_id, bsize_degrees, ref_grid_resolution_km)
+		outfile = get_default_outfile(goes, event_id, image_type, bsize_degrees, ref_grid_resolution_km)
 	
 	return save_and_plot_bb_image(goes, image_type, data_key, image_file, lat, lon, lats_file, lons_file, 
 						bsize_degrees, ref_grid_resolution_km, show_plot, outfile)
