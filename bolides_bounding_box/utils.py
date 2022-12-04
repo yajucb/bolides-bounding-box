@@ -1,6 +1,5 @@
 import os									# Check files
 import gc									# Clean memory for repeated plots
-import platform								# Check system platform
 from datetime import datetime, timedelta	# Datetime handling
 from json import loads, dumps				# Loading and storing intermediate results
 
@@ -139,13 +138,7 @@ def save_and_plot_bb_image(goes, image_type, data_key, image_file, lat, lon, lat
 	plt.figure(figsize=(7,7))
 	ax = plt.axes(projection=ccrs.Geostationary(central_longitude=sat_lon, satellite_height=sat_h))
 	img_extent = (x.min(), x.max(), y.min(), y.max())
-	if show_plot:
-		# Some visual features seem to crash on Mac
-		if platform.system() != 'Darwin':
-			# Add coastlines and gridlines
-		    ax.coastlines(resolution="10m", color="white", linewidth=0.8)
-		    ax.gridlines(color="white", alpha=0.5, linestyle="--", linewidth=0.5)
-		
+	if show_plot:		
 		# Insert Label
 		target_lat = lat
 		target_lon = lon
